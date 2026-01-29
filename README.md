@@ -12,7 +12,7 @@ The `main` branch of this repo has a completed version for the agentic CLI appli
 
 ```bash
 git clone https://github.com/Hendrixer/agents-v2.git
-cd angents-v2
+cd agents-v2
 git checkout lesson-01
 npm i
 ```
