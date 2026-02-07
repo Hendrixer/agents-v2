@@ -117,7 +117,7 @@ export async function runAgent(
     fullResponse += currentText;
 
     // If stream errored with "no output" and we have no text, try to recover
-    if (streamError && !currentText) {
+    if (streamError && (!currentText && toolCalls.lenght === 0)) {
       // Add a fallback response
       fullResponse =
         "I apologize, but I wasn't able to generate a response. Could you please try rephrasing your message?";
