@@ -1,8 +1,7 @@
 import { streamText, type ModelMessage } from 'ai';
-// import { createOpenAI } from '@ai-sdk/openai';
 import { getTracer } from '@lmnr-ai/lmnr';
 import { tools } from './tools/index.ts';
-// import { executeTool } from './executeTool.ts';
+import { executeTool } from './executeTool.ts';
 import { SYSTEM_PROMPT } from './system/prompt.ts';
 import { Laminar } from '@lmnr-ai/lmnr';
 import type { AgentCallbacks, ToolCallInfo } from '../types.ts';
@@ -21,8 +20,16 @@ import {
 import { filterCompatibleMessages } from './system/filterMessages.ts';
 
 Laminar.initialize({
-  projectApiKey: process.env.LMNR_API_KEY,
+  projectApiKey: process.env.LMNR_PROJECT_API_KEY,
 });
+
+// 去掉 execute 后再传给 streamText，避免 SDK 自动执行工具。
+const modelTools = Object.fromEntries(
+  Object.entries(tools).map(([name, toolDef]) => {
+    const { execute: _execute, ...toolWithoutExecute } = toolDef as any;
+    return [name, toolWithoutExecute];
+  }),
+) as typeof tools;
 
 export async function runAgent(
   userMessage: string,
@@ -42,7 +49,11 @@ export async function runAgent(
 
   const precheckTokens = estimateMessagesTokens(messages);
   if (isOverThreshold(precheckTokens.total, modelLimits.contextWindow)) {
-    messages = await compactConversation(workingHistory, modelName);
+    messages = [
+      { role: 'system', content: SYSTEM_PROMPT },
+      ...(await compactConversation(workingHistory, modelName)),
+      { role: 'user', content: userMessage },
+    ];
   }
 
   let fullResponse = '';
@@ -52,7 +63,7 @@ export async function runAgent(
     const result = streamText({
       model: llm.chat(modelName),
       messages,
-      tools,
+      tools: modelTools,
       experimental_telemetry: {
         isEnabled: true,
         tracer: getTracer(),
@@ -133,24 +144,24 @@ export async function runAgent(
     logLLMMessages('response <- model (tool-calls)', responseMessages.messages);
     messages.push(...responseMessages.messages);
 
-    // for (const tc of toolCalls) {
-    //   const result = await executeTool(tc.toolName, tc.args);
-    //   callbacks.onToolCallEnd(tc.toolName, result);
+    for (const tc of toolCalls) {
+      const result = await executeTool(tc.toolName, tc.args);
+      callbacks.onToolCallEnd(tc.toolName, result);
 
-    //   messages.push({
-    //     role: 'tool',
-    //     content: [
-    //       {
-    //         type: 'tool-result',
-    //         toolCallId: tc.toolCallId,
-    //         toolName: tc.toolName,
-    //         output: { type: 'text', value: result },
-    //       },
-    //     ],
-    //   });
+      messages.push({
+        role: 'tool',
+        content: [
+          {
+            type: 'tool-result',
+            toolCallId: tc.toolCallId,
+            toolName: tc.toolName,
+            output: { type: 'text', value: result },
+          },
+        ],
+      });
 
-    //   reportTokenUsage();
-    // }
+      reportTokenUsage();
+    }
   }
 
   callbacks.onComplete(fullResponse);
