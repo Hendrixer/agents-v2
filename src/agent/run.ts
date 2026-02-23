@@ -1,12 +1,14 @@
 import { streamText, type ModelMessage } from 'ai';
-import { createOpenAI } from '@ai-sdk/openai';
+// import { createOpenAI } from '@ai-sdk/openai';
 import { getTracer } from '@lmnr-ai/lmnr';
 import { tools } from './tools/index.ts';
-import { executeTool } from './executeTool.ts';
+// import { executeTool } from './executeTool.ts';
 import { SYSTEM_PROMPT } from './system/prompt.ts';
 import { Laminar } from '@lmnr-ai/lmnr';
 import type { AgentCallbacks, ToolCallInfo } from '../types.ts';
 import { llm } from '../llm.ts';
+import { logLLMMessages } from '../debug.ts';
+
 import {
   calculateUsagePercentage,
   compactConversation,
@@ -46,6 +48,7 @@ export async function runAgent(
   let fullResponse = '';
 
   while (true) {
+    logLLMMessages('messages -> model', messages);
     const result = streamText({
       model: llm.chat(modelName),
       messages,
@@ -127,6 +130,7 @@ export async function runAgent(
     }
 
     const responseMessages = await result.response;
+    logLLMMessages('response <- model (tool-calls)', responseMessages.messages);
     messages.push(...responseMessages.messages);
 
     // for (const tc of toolCalls) {
