@@ -1,4 +1,4 @@
-import type { ModelLimits } from "../../types.ts";
+import type { ModelLimits } from '../../types.ts';
 
 /**
  * Default threshold for context window usage (80%)
@@ -10,12 +10,12 @@ export const DEFAULT_THRESHOLD = 0.8;
  * Currently only includes GPT-5 models
  */
 const MODEL_LIMITS: Record<string, ModelLimits> = {
-  "gpt-5": {
+  'gpt-5': {
     inputLimit: 272000,
     outputLimit: 128000,
     contextWindow: 400000,
   },
-  "gpt-5-mini": {
+  'gpt-5-mini': {
     inputLimit: 272000,
     outputLimit: 128000,
     contextWindow: 400000,
@@ -43,8 +43,8 @@ export function getModelLimits(model: string): ModelLimits {
   }
 
   // Check for gpt-5 variants
-  if (model.startsWith("gpt-5")) {
-    return MODEL_LIMITS["gpt-5"];
+  if (model.startsWith('gpt-5')) {
+    return MODEL_LIMITS['gpt-5'];
   }
 
   return DEFAULT_LIMITS;
@@ -58,7 +58,7 @@ export function isOverThreshold(
   contextWindow: number,
   threshold: number = DEFAULT_THRESHOLD,
 ): boolean {
-  return false;
+  return totalTokens > contextWindow * threshold;
 }
 
 /**
@@ -68,5 +68,5 @@ export function calculateUsagePercentage(
   totalTokens: number,
   contextWindow: number,
 ): number {
-  return 0;
+  return (totalTokens / contextWindow) * 100;
 }

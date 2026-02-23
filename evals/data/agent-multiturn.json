@@ -34,9 +34,18 @@
   {
     "data": {
       "messages": [
-        { "role": "user", "content": "I'm working on a Node.js project and need help understanding it" },
-        { "role": "assistant", "content": "I'd be happy to help you understand your Node.js project! What would you like to know about it?" },
-        { "role": "user", "content": "List the files in the src directory and then read the main entry point" }
+        {
+          "role": "user",
+          "content": "I'm working on a Node.js project and need help understanding it"
+        },
+        {
+          "role": "assistant",
+          "content": "I'd be happy to help you understand your Node.js project! What would you like to know about it?"
+        },
+        {
+          "role": "user",
+          "content": "List the files in the src directory and then read the main entry point"
+        }
       ],
       "mockTools": {
         "listFiles": {
