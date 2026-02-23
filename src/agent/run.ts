@@ -144,7 +144,14 @@ export async function runAgent(
     logLLMMessages('response <- model (tool-calls)', responseMessages.messages);
     messages.push(...responseMessages.messages);
 
+    let rejected = false;
     for (const tc of toolCalls) {
+      const approved = await callbacks.onToolApproval(tc.toolName, tc.args);
+
+      if (!approved) {
+        rejected = true;
+        break;
+      }
       const result = await executeTool(tc.toolName, tc.args);
       callbacks.onToolCallEnd(tc.toolName, result);
 
@@ -161,6 +168,10 @@ export async function runAgent(
       });
 
       reportTokenUsage();
+    }
+
+    if (rejected) {
+      break;
     }
   }
 
