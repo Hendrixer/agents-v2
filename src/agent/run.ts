@@ -4,7 +4,7 @@ import { tools } from './tools/index.ts';
 import { executeTool } from './executeTool.ts';
 import { SYSTEM_PROMPT } from './system/prompt.ts';
 import { Laminar } from '@lmnr-ai/lmnr';
-import type { AgentCallbacks, ToolCallInfo } from '../types.ts';
+import type { AgentCallbacks, ToolCallInfo, ToolResultOutput } from '../types.ts';
 import { llm } from '../llm.ts';
 import { logLLMMessages } from '../debug.ts';
 
@@ -18,6 +18,28 @@ import {
 } from './context/index.ts';
 
 import { filterCompatibleMessages } from './system/filterMessages.ts';
+
+/**
+ * Convert ToolResultOutput to string for callback display.
+ */
+function toolResultToString(result: ToolResultOutput): string {
+  if (result.type === 'text' || result.type === 'error-text') {
+    return result.value;
+  }
+  if (result.type === 'json' || result.type === 'error-json') {
+    return JSON.stringify(result.value, null, 2);
+  }
+  if (result.type === 'content') {
+    return result.value
+      .filter(part => part.type === 'text')
+      .map(part => part.text)
+      .join('\n');
+  }
+  if (result.type === 'execution-denied') {
+    return result.reason ?? 'Execution denied';
+  }
+  return JSON.stringify(result);
+}
 
 Laminar.initialize({
   projectApiKey: process.env.LMNR_PROJECT_API_KEY,
@@ -152,8 +174,9 @@ export async function runAgent(
         rejected = true;
         break;
       }
-      const result = await executeTool(tc.toolName, tc.args);
-      callbacks.onToolCallEnd(tc.toolName, result);
+      const toolResult = await executeTool(tc.toolName, tc.args);
+      // Callback receives string representation
+      callbacks.onToolCallEnd(tc.toolName, toolResultToString(toolResult));
 
       messages.push({
         role: 'tool',
@@ -162,7 +185,7 @@ export async function runAgent(
             type: 'tool-result',
             toolCallId: tc.toolCallId,
             toolName: tc.toolName,
-            output: { type: 'text', value: result },
+            output: toolResult,
           },
         ],
       });

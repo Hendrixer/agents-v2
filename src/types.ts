@@ -33,3 +33,30 @@ export interface TokenUsageInfo {
   threshold: number;
   percentage: number;
 }
+
+/**
+ * Tool result output format compatible with Vercel AI SDK.
+ * Uses JSONValue type for stricter type compatibility.
+ */
+export type JSONValue =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: JSONValue }
+  | JSONValue[];
+
+export type ToolResultOutput =
+  | { type: 'text'; value: string }
+  | { type: 'json'; value: JSONValue }
+  | { type: 'error-text'; value: string }
+  | { type: 'error-json'; value: JSONValue }
+  | { type: 'execution-denied'; reason?: string }
+  | {
+      type: 'content';
+      value: Array<
+        | { type: 'text'; text: string }
+        | { type: 'image-data'; data: string; mediaType: string }
+        | { type: 'file-data'; data: string; mediaType: string; filename?: string }
+      >;
+    };
