@@ -4,7 +4,11 @@ import { tools } from './tools/index.ts';
 import { executeTool } from './executeTool.ts';
 import { SYSTEM_PROMPT } from './system/prompt.ts';
 import { Laminar } from '@lmnr-ai/lmnr';
-import type { AgentCallbacks, ToolCallInfo, ToolResultOutput } from '../types.ts';
+import type {
+  AgentCallbacks,
+  ToolCallInfo,
+  ToolResultOutput,
+} from '../types.ts';
 import { llm } from '../llm.ts';
 import { logLLMMessages } from '../debug.ts';
 
@@ -41,10 +45,6 @@ function toolResultToString(result: ToolResultOutput): string {
   return JSON.stringify(result);
 }
 
-Laminar.initialize({
-  projectApiKey: process.env.LMNR_PROJECT_API_KEY,
-});
-
 // 去掉 execute 后再传给 streamText，避免 SDK 自动执行工具。
 const modelTools = Object.fromEntries(
   Object.entries(tools).map(([name, toolDef]) => {
@@ -53,11 +53,22 @@ const modelTools = Object.fromEntries(
   }),
 ) as typeof tools;
 
+// Track if Laminar has been initialized
+let laminarInitialized = false;
+
 export async function runAgent(
   userMessage: string,
   conversationHistory: ModelMessage[],
   callbacks: AgentCallbacks,
 ): Promise<ModelMessage[]> {
+  // Initialize Laminar on first call (after dotenv has loaded env vars)
+  if (!laminarInitialized) {
+    Laminar.initialize({
+      projectApiKey: process.env.LMNR_PROJECT_API_KEY,
+    });
+    laminarInitialized = true;
+  }
+
   const modelName = process.env.OPENAI_MODEL!;
   const modelLimits = getModelLimits(modelName);
   // Filter and check if we need to compact the conversation history before starting

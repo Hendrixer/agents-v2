@@ -1,6 +1,12 @@
 #!/usr/bin/env node
-import React from 'react';
-import { render } from 'ink';
-import { App } from './ui/index.tsx';
+// Load .env from package root before importing any other modules
+await (async () => {
+  const { loadPackageEnv } = await import('./config/dotenv.ts');
+  loadPackageEnv();
 
-render(React.createElement(App));
+  const { default: React } = await import('react');
+  const { render } = await import('ink');
+  const { App } = await import('./ui/index.ts');
+
+  render(React.createElement(App));
+})();

@@ -19,7 +19,7 @@ import { buildMessages, buildMockedTools } from './utils.ts';
 import { SYSTEM_PROMPT } from '../src/agent/system/prompt.ts';
 import { llm } from '../src/llm.ts';
 
-// 通过环境变量控制是否打印 LLM 输入输出消息，避免默认污染终端。
+// 通过环境变量控制是否打印 LLM 输出消息
 const DEBUG_LLM_MESSAGES = process.env.DEBUG_LLM_MESSAGES === 'true';
 
 const logLLMMessages = (label: string, data: unknown) => {
