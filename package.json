@@ -25,10 +25,12 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^2.0.72",
-    "@lmnr-ai/lmnr": "^0.7.9",
+    "@ai-sdk/google": "^4.0.44",
+    "@ai-sdk/openai": "^4.0.41",
+    "@google/genai": "^2.17.1",
+    "@lmnr-ai/lmnr": "^0.8.41",
     "@types/shelljs": "^0.8.17",
-    "ai": "^5.0.102",
+    "ai": "^7.0.65",
     "dotenv": "^17.2.3",
     "ink": "^6.5.1",
     "ink-spinner": "^5.0.0",

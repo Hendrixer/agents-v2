@@ -30,7 +30,7 @@ function messagesToText(messages: ModelMessage[]): string {
  */
 export async function compactConversation(
   messages: ModelMessage[],
-  model: string = "gpt-5-mini",
+  model: string = "gemini-1.3",
 ): Promise<any> {
   // Filter out system messages - they're handled separately
   //
