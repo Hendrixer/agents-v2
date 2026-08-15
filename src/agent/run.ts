@@ -1,32 +1,22 @@
-import  "dotenv/config";
 import { generateText, type ModelMessage } from "ai";
-import { SYSTEM_PROMPT } from "./system/prompt.ts";
-import type { AgentCallbacks } from "../types.ts";
-import { google } from "@ai-sdk/google";
-import { GoogleGenAI } from '@google/genai';
-const MODEL_NAME = google("gemini-2.5-flash");
+import { openai } from "@ai-sdk/openai";
 
-const client = new GoogleGenAI({});
+import { SYSTEM_PROMPT } from "./system/prompt.ts";
+
+import type { AgentCallbacks } from "../types.ts";
+
+const MODEL_NAME = "gpt-5-mini";
 
 export async function runAgent(
   userMessage: string,
   conversationHistory: ModelMessage[],
   callbacks: AgentCallbacks,
 ): Promise<any> {
-    // const { text } = await client.({
-    //     model: (MODEL_NAME),
-    //     prompt: userMessage,
-    //     system: SYSTEM_PROMPT,
-    // });
+  const { text } = await generateText({
+    model: openai(MODEL_NAME),
+    prompt: userMessage,
+    system: SYSTEM_PROMPT,
+  });
 
-    // console.log(`Agent response: ${text}`);
-    let interaction = await client.interactions.create({
-        model: 'gemini-3.6-flash',
-        input: 'tell me a fact'
-    });
-
-    console.log(interaction.output_text);
+  console.log(text);
 }
-
-
- runAgent('hello my name is ekagra')
