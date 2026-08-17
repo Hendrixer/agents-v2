@@ -1,4 +1,4 @@
-import { dateTime } from "./dateTime";
+import { dateTime } from "./dateTime.ts";
 
 
 // All tools combined for the agent
