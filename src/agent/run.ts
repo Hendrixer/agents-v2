@@ -3,7 +3,6 @@ import { generateText, type ModelMessage } from "ai";
 import { tools } from "./tools/index.ts";
 import { Laminar, getTracer } from "@lmnr-ai/lmnr";
 import { executeTools } from "./executeTools.ts";
-import { google } from "@ai-sdk/google";
 import { SYSTEM_PROMPT } from "./system/prompt.ts";
 
 import type { AgentCallbacks } from "../types.ts";
